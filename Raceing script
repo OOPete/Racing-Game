@@ -1,0 +1,162 @@
+local RacLight = script.Parent
+local CheckPoint1=game.Workspace.checkpoint1
+local CheckPoint2 = game.Workspace.checkpoint2
+local CheckPoint3 = game.Workspace.checkpoint3
+local CheckPoint4 = game.Workspace.checkpoint4
+
+local Red = RacLight.red
+local Green = RacLight.green
+local Orange = RacLight.orange
+local StartWall = game.Workspace.Starterwall
+CheckPoint1.Transparency = 1
+CheckPoint2.Transparency = 1
+CheckPoint3.Transparency = 1
+CheckPoint4.Transparency = 1
+
+
+
+
+local RaceInProgress = false
+
+function removeWall()
+	StartWall.Transparency = 1
+StartWall.CanCollide = false
+end
+
+
+local function VictoryMessage(PlayerPerson)
+	local message = Instance.new("Message")
+	message.Text = PlayerPerson.. "has won"
+	message.Parent = game.Workspace
+	wait(5)
+	message:Destroy()
+end
+
+
+local function CheckPoint1Hit(OtherPart)
+	if OtherPart.Parent:FindFirstChild("Humanoid")then
+		print("A player hit me")
+		if not CheckPoint1:FindFirstChild(OtherPart.Parent.Name) then
+		local PlayerTag = Instance.new("StringValue")
+		PlayerTag.Parent = CheckPoint1
+		PlayerTag.Name = OtherPart.Parent.Name
+		end
+		if CheckPoint4:FindFirstChild(OtherPart.Parent.Name) and RaceInProgress then
+			print("PLAYER WINS")
+			RaceInProgress = false
+			VictoryMessage(OtherPart.Parent.Name)
+		end
+	end
+end
+
+CheckPoint1.Touched:Connect(CheckPoint1Hit)
+
+local function CheckPoint2Hit(OtherPart)
+	if OtherPart.Parent:FindFirstChild("Humanoid")then
+		print("A player hit me")
+		if not CheckPoint2:FindFirstChild(OtherPart.Parent.Name)and CheckPoint1:FindFirstChild(OtherPart.Parent.Name) then
+		local PlayerTag = Instance.new("StringValue")
+		PlayerTag.Parent = CheckPoint2
+		PlayerTag.Name = OtherPart.Parent.Name
+		end
+	end
+end
+
+CheckPoint2.Touched:Connect(CheckPoint2Hit)
+
+local function CheckPoint3Hit(OtherPart)
+	if OtherPart.Parent:FindFirstChild("Humanoid")then
+		print("A player hit me")
+		if not CheckPoint3:FindFirstChild(OtherPart.Parent.Name)and CheckPoint2:FindFirstChild(OtherPart.Parent.Name) then
+		local PlayerTag = Instance.new("StringValue")
+		PlayerTag.Parent = CheckPoint3
+		PlayerTag.Name = OtherPart.Parent.Name
+		end
+	end
+end
+
+CheckPoint3.Touched:Connect(CheckPoint3Hit)
+
+
+local function CheckPoint4Hit(OtherPart)
+	if OtherPart.Parent:FindFirstChild("Humanoid")then
+		if not CheckPoint4:FindFirstChild(OtherPart.Parent.Name) and CheckPoint3:FindFirstChild(OtherPart.Parent.Name) then
+		local PlayerTag = Instance.new("StringValue")
+		PlayerTag.Parent = CheckPoint4
+		PlayerTag.Name = OtherPart.Parent.Name
+		end
+	end
+end
+
+CheckPoint4.Touched:Connect(CheckPoint4Hit)
+
+
+function resetLights()
+	Green.PointLight.Enabled = false
+	Red.PointLight.Enabled = false
+	Orange.PointLight.Enabled = false
+end
+
+function resetBarrier()
+	StartWall.Transparency = 0.5
+StartWall.CanCollide = true
+end
+
+function destroyCars()
+for _, object in pairs(game.Workspace:GetChildren()) do
+		if object.Name == "racecar" then
+			object:Destroy()
+			
+		end
+		
+	end		
+end
+function ClearCheckPoint(CheckPoint)
+for _, object in pairs(CheckPoint:GetChildren()) do
+		if object.Name ~= "TouchInterest" then
+			object:Destroy()
+		end
+	end	
+end  
+
+
+
+
+
+function createCars()
+		for _, object in pairs(game.ServerStorage:GetChildren()) do
+	local raceCarCopy = object:Clone()
+raceCarCopy.Parent = game.Workspace  --the parent or the folder with this variable is workspace
+raceCarCopy:MakeJoints()	
+	end
+end
+
+function LightCycle()
+Red.PointLight.Enabled = true
+wait(5)
+Red.PointLight.Enabled = false
+Orange.PointLight.Enabled = true
+wait(4)
+Orange.PointLight.Enabled = false
+Green.PointLight.Enabled = true
+wait(4)
+Green.PointLight.Enabled = false	
+end
+wait(7)
+while true do
+	resetLights()
+	resetBarrier()
+	destroyCars()
+	createCars()
+	ClearCheckPoint(CheckPoint1)
+	ClearCheckPoint(CheckPoint2)
+	ClearCheckPoint(CheckPoint3)
+	ClearCheckPoint(CheckPoint4)
+	LightCycle()
+	removeWall()
+	RaceInProgress= true
+	while RaceInProgress == true do
+		wait()
+	end
+	wait(10)
+end
